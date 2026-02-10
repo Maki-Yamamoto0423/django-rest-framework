@@ -1,22 +1,45 @@
+from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Snippet
 
 
-class SnippetSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(required=False, allow_blank=True, max_length=100)
-    code = serializers.CharField()
-    linenos = serializers.BooleanField(required=False)
-    language = serializers.CharField(default='python')
-    owner = serializers.ReadOnlyField(source='owner.username')
+# =================================================
+# Snippet Serializer
+# 関連を「ID」ではなく「URL」で表現する
+# =================================================
+class SnippetSerializer(serializers.HyperlinkedModelSerializer):
+    owner = serializers.ReadOnlyField(source="owner.username")
+    highlight = serializers.HyperlinkedIdentityField(
+        view_name="snippet-highlight",
+        format="html"
+    )
 
-    def create(self, validated_data):
-        return Snippet.objects.create(**validated_data)
+    class Meta:
+        model = Snippet
+        # url フィールドは HyperlinkedModelSerializer で必須
+        fields = [
+            "url",
+            "id",
+            "highlight",
+            "owner",
+            "title",
+            "code",
+            "linenos",
+            "language",
+        ]
 
-    def update(self, instance, validated_data):
-        instance.title = validated_data.get('title', instance.title)
-        instance.code = validated_data.get('code', instance.code)
-        instance.linenos = validated_data.get('linenos', instance.linenos)
-        instance.language = validated_data.get('language', instance.language)
-        instance.save()
-        return instance
+
+# =================================================
+# User Serializer
+# User → Snippet の関連もリンクで表現
+# =================================================
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    snippets = serializers.HyperlinkedRelatedField(
+        many=True,
+        view_name="snippet-detail",
+        read_only=True
+    )
+
+    class Meta:
+        model = User
+        fields = ["url", "id", "username", "snippets"]

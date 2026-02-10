@@ -7,6 +7,10 @@ class Snippet(models.Model):
     code = models.TextField()
     linenos = models.BooleanField(default=False)
     language = models.CharField(max_length=100, default='python')
+    style = models.CharField(
+    default="friendly",
+    max_length=100,
+)
 
 
     owner = models.ForeignKey(
