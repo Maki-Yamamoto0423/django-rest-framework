@@ -12,7 +12,7 @@ class Snippet(models.Model):
     owner = models.ForeignKey(
         User, related_name='snippets', on_delete=models.CASCADE
     )
-    highlighted = models.TextField()
+    highlighted = models.TextField(blank=True)
 
     class Meta:
         ordering = ['created']
