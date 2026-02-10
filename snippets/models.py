@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 class Snippet(models.Model):
     created = models.DateTimeField(auto_now_add=True)
@@ -6,6 +7,12 @@ class Snippet(models.Model):
     code = models.TextField()
     linenos = models.BooleanField(default=False)
     language = models.CharField(max_length=100, default='python')
+
+
+    owner = models.ForeignKey(
+        User, related_name='snippets', on_delete=models.CASCADE
+    )
+    highlighted = models.TextField()
 
     class Meta:
         ordering = ['created']
