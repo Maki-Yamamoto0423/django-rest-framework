@@ -1,6 +1,8 @@
 from rest_framework import generics
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
+from snippets.permissions import IsOwnerOrReadOnly
+
 
 # ---------------------------------------------
 # Snippet List
@@ -15,6 +17,7 @@ class SnippetList(generics.ListCreateAPIView):
     serializer_class = SnippetSerializer
 
     def perform_create(self, serializer):
+        # Snippet 作成時にログインユーザーを owner に設定
         serializer.save(owner=self.request.user)
 
 
@@ -29,3 +32,4 @@ class SnippetDetail(generics.RetrieveUpdateDestroyAPIView):
     """
     queryset = Snippet.objects.all()
     serializer_class = SnippetSerializer
+    permission_classes = [IsOwnerOrReadOnly]
